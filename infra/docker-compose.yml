@@ -1,0 +1,14 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tareas-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Your_Strong_Passw0rd!
+      - MSSQL_PID=Developer
+    ports:
+      - "14333:1433"
+    volumes:
+      - tareas_sqlserver_data:/var/opt/mssql
+volumes:
+  tareas_sqlserver_data:
