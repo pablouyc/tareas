@@ -10,10 +10,14 @@ public class AppDbContext : DbContext
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<Sector> Sectors => Set<Sector>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
 
     public DbSet<TaskTemplate> TaskTemplates => Set<TaskTemplate>();
     public DbSet<TaskInstance> TaskInstances => Set<TaskInstance>();
     public DbSet<TaskDependency> TaskDependencies => Set<TaskDependency>();
+    public DbSet<TaskEvent> TaskEvents => Set<TaskEvent>();
+    public DbSet<TaskAssignee> TaskAssignees => Set<TaskAssignee>();
+    public DbSet<TaskReviewer> TaskReviewers => Set<TaskReviewer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,6 +49,24 @@ public class AppDbContext : DbContext
             e.HasOne(x => x.PrimarySector)
              .WithMany()
              .HasForeignKey(x => x.PrimarySectorId)
+             .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // TimeEntry
+        modelBuilder.Entity<TimeEntry>(e =>
+        {
+            e.Property(x => x.Notes).HasMaxLength(2000);
+            e.Property(x => x.Hours).HasPrecision(6, 2);
+            e.Property(x => x.Date).HasColumnType("date");
+
+            e.HasOne(x => x.User)
+             .WithMany()
+             .HasForeignKey(x => x.UserId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.Task)
+             .WithMany()
+             .HasForeignKey(x => x.TaskId)
              .OnDelete(DeleteBehavior.SetNull);
         });
 
@@ -85,6 +107,11 @@ public class AppDbContext : DbContext
              .WithMany()
              .HasForeignKey(x => x.SectorId)
              .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.OriginalTask)
+             .WithMany()
+             .HasForeignKey(x => x.OriginalTaskId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
 
         // TaskDependency (self-referencing)
@@ -93,7 +120,7 @@ public class AppDbContext : DbContext
             e.HasIndex(x => new { x.TaskId, x.DependsOnTaskId }).IsUnique();
 
             e.HasOne(x => x.Task)
-             .WithMany()
+             .WithMany(x => x.Dependencies)
              .HasForeignKey(x => x.TaskId)
              .OnDelete(DeleteBehavior.Cascade);
 
@@ -101,6 +128,45 @@ public class AppDbContext : DbContext
              .WithMany()
              .HasForeignKey(x => x.DependsOnTaskId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<TaskEvent>(e =>
+        {
+            e.Property(x => x.Payload).HasMaxLength(4000);
+            e.HasOne(x => x.Task)
+             .WithMany(x => x.Events)
+             .HasForeignKey(x => x.TaskId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TaskAssignee>(e =>
+        {
+            e.HasKey(x => new { x.TaskId, x.UserId });
+            e.HasIndex(x => new { x.TaskId, x.UserId }).IsUnique();
+            e.HasIndex(x => x.UserId);
+            e.HasOne(x => x.Task)
+             .WithMany(x => x.Assignees)
+             .HasForeignKey(x => x.TaskId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.User)
+             .WithMany()
+             .HasForeignKey(x => x.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TaskReviewer>(e =>
+        {
+            e.HasKey(x => new { x.TaskId, x.UserId });
+            e.HasIndex(x => new { x.TaskId, x.UserId }).IsUnique();
+            e.HasIndex(x => x.UserId);
+            e.HasOne(x => x.Task)
+             .WithMany(x => x.Reviewers)
+             .HasForeignKey(x => x.TaskId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.User)
+             .WithMany()
+             .HasForeignKey(x => x.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

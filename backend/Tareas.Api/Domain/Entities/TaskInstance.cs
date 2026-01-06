@@ -25,6 +25,10 @@ public class TaskInstance : BaseEntity
     // Tipo de trabajo (normal/rectificativa)
     public TaskWorkType WorkType { get; set; } = TaskWorkType.Normal;
 
+    // Tarea original si es rectificativa
+    public Guid? OriginalTaskId { get; set; }
+    public TaskInstance? OriginalTask { get; set; }
+
     // Motivo solo si es rectificativa o si hay rechazo (texto libre)
     public string? Reason { get; set; }
 
@@ -41,4 +45,9 @@ public class TaskInstance : BaseEntity
     public string? Comments { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    public ICollection<TaskDependency> Dependencies { get; set; } = new List<TaskDependency>();
+    public ICollection<TaskAssignee> Assignees { get; set; } = new List<TaskAssignee>();
+    public ICollection<TaskReviewer> Reviewers { get; set; } = new List<TaskReviewer>();
+    public ICollection<TaskEvent> Events { get; set; } = new List<TaskEvent>();
 }

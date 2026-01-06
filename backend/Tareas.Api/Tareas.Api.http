@@ -1,6 +1,125 @@
 @Tareas.Api_HostAddress = http://localhost:5013
 
-GET {{Tareas.Api_HostAddress}}/weatherforecast/
+### Health
+GET {{Tareas.Api_HostAddress}}/health
 Accept: application/json
 
-###
+### Version
+GET {{Tareas.Api_HostAddress}}/api/version
+Accept: application/json
+
+### Ping DB
+GET {{Tareas.Api_HostAddress}}/api/debug/ping-db
+Accept: application/json
+
+### Clients
+GET {{Tareas.Api_HostAddress}}/api/clients
+Accept: application/json
+
+### Create Client
+POST {{Tareas.Api_HostAddress}}/api/clients
+Content-Type: application/json
+
+{
+  "code": "CLI-100",
+  "name": "Cliente Demo",
+  "isActive": true
+}
+
+### Sectors
+GET {{Tareas.Api_HostAddress}}/api/sectors
+Accept: application/json
+
+### Create Sector
+POST {{Tareas.Api_HostAddress}}/api/sectors
+Content-Type: application/json
+
+{
+  "name": "Finanzas"
+}
+
+### Users
+GET {{Tareas.Api_HostAddress}}/api/users
+Accept: application/json
+
+### Create User
+POST {{Tareas.Api_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "displayName": "Carlos Ruiz",
+  "email": "carlos@empresa.com",
+  "role": 1,
+  "primarySectorId": null,
+  "isActive": true
+}
+
+### Task Templates
+GET {{Tareas.Api_HostAddress}}/api/task-templates
+Accept: application/json
+
+### Create Task Template
+POST {{Tareas.Api_HostAddress}}/api/task-templates
+Content-Type: application/json
+
+{
+  "name": "Balance mensual",
+  "sectorId": "00000000-0000-0000-0000-000000000000",
+  "periodicity": 1,
+  "defaultEstimatedHours": 4,
+  "isActive": true
+}
+
+### Tasks
+GET {{Tareas.Api_HostAddress}}/api/tasks
+Accept: application/json
+
+### Create Task
+POST {{Tareas.Api_HostAddress}}/api/tasks
+Content-Type: application/json
+
+{
+  "taskTemplateId": "00000000-0000-0000-0000-000000000000",
+  "clientId": "00000000-0000-0000-0000-000000000000",
+  "sectorId": "00000000-0000-0000-0000-000000000000",
+  "title": "Balance Abril",
+  "dueDateUtc": "2026-01-20T00:00:00Z",
+  "estimatedHours": 6,
+  "workType": 0
+}
+
+### Task Transitions
+POST {{Tareas.Api_HostAddress}}/api/tasks/00000000-0000-0000-0000-000000000000/start
+
+### Reject Task
+POST {{Tareas.Api_HostAddress}}/api/tasks/00000000-0000-0000-0000-000000000000/reject
+Content-Type: application/json
+
+{
+  "reason": "Falta documentación"
+}
+
+### Task Dependencies
+POST {{Tareas.Api_HostAddress}}/api/task-dependencies
+Content-Type: application/json
+
+{
+  "taskId": "00000000-0000-0000-0000-000000000000",
+  "dependsOnTaskId": "00000000-0000-0000-0000-000000000000"
+}
+
+### Add Assignee
+POST {{Tareas.Api_HostAddress}}/api/tasks/00000000-0000-0000-0000-000000000000/assignees
+Content-Type: application/json
+
+{
+  "userId": "00000000-0000-0000-0000-000000000000"
+}
+
+### Add Reviewer
+POST {{Tareas.Api_HostAddress}}/api/tasks/00000000-0000-0000-0000-000000000000/reviewers
+Content-Type: application/json
+
+{
+  "userId": "00000000-0000-0000-0000-000000000000"
+}
