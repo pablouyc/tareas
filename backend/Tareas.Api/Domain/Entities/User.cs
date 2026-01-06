@@ -1,0 +1,13 @@
+namespace Tareas.Api.Domain.Entities;
+
+public class User : BaseEntity
+{
+    public string DisplayName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+
+    // Relación principal (sector “home”)
+    public Guid? PrimarySectorId { get; set; }
+    public Sector? PrimarySector { get; set; }
+
+    public bool IsActive { get; set; } = true;
+}
