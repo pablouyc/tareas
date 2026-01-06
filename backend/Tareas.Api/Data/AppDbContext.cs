@@ -11,6 +11,10 @@ public class AppDbContext : DbContext
     public DbSet<Sector> Sectors => Set<Sector>();
     public DbSet<User> Users => Set<User>();
 
+    public DbSet<TaskTemplate> TaskTemplates => Set<TaskTemplate>();
+    public DbSet<TaskInstance> TaskInstances => Set<TaskInstance>();
+    public DbSet<TaskDependency> TaskDependencies => Set<TaskDependency>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -42,6 +46,61 @@ public class AppDbContext : DbContext
              .WithMany()
              .HasForeignKey(x => x.PrimarySectorId)
              .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // TaskTemplate
+        modelBuilder.Entity<TaskTemplate>(e =>
+        {
+            e.HasIndex(x => x.Name);
+            e.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            e.Property(x => x.DefaultEstimatedHours).HasPrecision(9, 2);
+
+            e.HasOne(x => x.Sector)
+             .WithMany()
+             .HasForeignKey(x => x.SectorId)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // TaskInstance
+        modelBuilder.Entity<TaskInstance>(e =>
+        {
+            e.HasIndex(x => x.DueDateUtc);
+            e.Property(x => x.Title).HasMaxLength(250).IsRequired();
+            e.Property(x => x.EstimatedHours).HasPrecision(9, 2);
+            e.Property(x => x.Link).HasMaxLength(1000);
+            e.Property(x => x.Reason).HasMaxLength(2000);
+            e.Property(x => x.Comments).HasMaxLength(4000);
+
+            e.HasOne(x => x.TaskTemplate)
+             .WithMany()
+             .HasForeignKey(x => x.TaskTemplateId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.Client)
+             .WithMany()
+             .HasForeignKey(x => x.ClientId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.Sector)
+             .WithMany()
+             .HasForeignKey(x => x.SectorId)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // TaskDependency (self-referencing)
+        modelBuilder.Entity<TaskDependency>(e =>
+        {
+            e.HasIndex(x => new { x.TaskId, x.DependsOnTaskId }).IsUnique();
+
+            e.HasOne(x => x.Task)
+             .WithMany()
+             .HasForeignKey(x => x.TaskId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(x => x.DependsOnTask)
+             .WithMany()
+             .HasForeignKey(x => x.DependsOnTaskId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

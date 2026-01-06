@@ -1,6 +1,6 @@
 namespace Tareas.Api.Domain.Enums;
 
-public enum TaskStatus
+public enum WorkItemStatus
 {
     Pending = 0,
     Started = 1,
